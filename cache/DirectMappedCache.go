@@ -26,7 +26,7 @@ func (c *DMCache) Size() int {
 }
 
 func (c *DMCache) Lookup(key uint16) bool {
-	kblock := (key & (0b0000001111111111)) / uint16(c.wsize)
+	kblock := (key & (uint16(c.size - 1))) / uint16(c.wsize)
 	ktag := key / uint16(c.size)
 	tag, valid := c.lines[kblock].tag, c.lines[kblock].valid
 	if !valid {
