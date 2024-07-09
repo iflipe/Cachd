@@ -3,9 +3,9 @@ package main
 import (
 	"example/cachd/cache"
 	"fmt"
-	"io"
 	"os"
 	"strconv"
+	"bufio"
 )
 
 func calculateHitRatio(memory cache.ICache, filename string) (float64, error) {
@@ -14,29 +14,24 @@ func calculateHitRatio(memory cache.ICache, filename string) (float64, error) {
 		return 0, err
 	}
 	defer f.Close()
-	address := make([]byte, 5)
 	var hits, misses int
-	for {
-		n, err := f.Read(address)
-		if err == io.EOF {
-			break
-		}
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan(){
+		line := scanner.Text()
+		///fmt.Printf(line, "\n")
+	
+		add, err := strconv.ParseUint(line, 10, 16)
 		if err != nil {
-			fmt.Println(err)
-			continue
+			return 0, err
 		}
-		if n >= 4 {
-			add, err := strconv.ParseUint(string(address[:4]), 10, 16)
-			if err != nil {
-				return 0, err
-			}
-			if memory.Lookup(uint16(add)) {
-				hits++
-			} else {
-				misses++
-			}
+		if memory.Lookup(uint16(add)) {
+			hits++
+		} else {
+			misses++
 		}
 	}
+
 	fmt.Printf("Hits: %d\nMisses: %d\n", hits, misses)
 	return float64(hits) / float64(hits+misses), nil
 
