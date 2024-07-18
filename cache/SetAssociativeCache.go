@@ -29,8 +29,10 @@ func (c *SACache) Size() int {
 }
 
 func (c *SACache) Lookup(key uint16) bool {
-	kset := (key & (uint16(len(c.sets) - 1))) / uint16(c.wsize)
-	ktag := key / uint16(c.size)
+	//word := key % uint16(c.wsize)
+	kset := (key / uint16(c.wsize)) % uint16(len(c.sets))
+	//kset := (key & (uint16(len(c.sets) - 1))) / uint16(c.wsize)
+	ktag := kset / uint16(len(c.sets))
 	for i := 0; i < 2; i++ {
 		if c.sets[kset][i].valid && c.sets[kset][i].tag == ktag {
 			return true
