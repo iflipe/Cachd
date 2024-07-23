@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // This function opens and reads the contents of a file, retrieves a 5-character line, extracts the 4-digit memory address
@@ -51,20 +52,21 @@ func calculateHitRatio(memory cache.ICache, filename string) (float64, error) {
 }
 
 func showHitRatio(memory cache.ICache, size int, filename string) {
-	//Wordsize in bytes
-	hits := make([]float64, 5)
+	hitRecord := make([]float64, 5) //Array that stores the hit ratio for each wordsize
 	for wordsize := 1; wordsize <= 16; wordsize *= 2 {
-		memory.Init(size, wordsize)
-		if magicnumber, err := calculateHitRatio(memory, filename); err != nil {
+		memory.Init(size, wordsize) //Initializes the cache with the appropriate size and wordsize for each iteration
+		if hitRatio, err := calculateHitRatio(memory, filename); err != nil {
 			fmt.Println(err)
 		} else {
-			hits[int(math.Log2(float64(wordsize)))] = magicnumber
+			hitRecord[int(math.Log2(float64(wordsize)))] = hitRatio //Saves the hit ratio for the current wordsize
 		}
 	}
-	fmt.Printf("Hits for %v:\n", filename)
+	//Prints the hit ratio for each wordsize with a precision of 2 decimal places
+	fmt.Printf("For %v:\n", strings.Split(filename, ".")[0])
+	fmt.Printf("| Wordsize\t| Hit ratio\n")
+	fmt.Printf("----------------------------\n")
 	for i := 0; i < 5; i++ {
-		fmt.Printf("Wordsize %d:\t", int(math.Pow(2, float64(i))))
-		fmt.Printf("Hit ratio is: %.2f%%\n", hits[i]*100)
+		fmt.Printf("| %dB\t\t| %.2f%%\n", int(math.Pow(2, float64(i))), hitRecord[i]*100)
 	}
 
 }
@@ -82,13 +84,13 @@ func main() {
 	memorySA := cache.SACache{}
 	memoryDM := cache.DMCache{}
 
-	//T'ests memories for different wordsizes
+	//Tests memories for different wordsizes
 	println("Memory Set Associative")
 	showHitRatio(&memorySA, memorySize, "referencia1.dat")
-	println("-------------------------------------------------")
+	println("\n")
 	showHitRatio(&memorySA, memorySize, "referencia2.dat")
 	println("\n\nMemory Direct Mapped")
 	showHitRatio(&memoryDM, memorySize, "referencia1.dat")
-	println("-------------------------------------------------")
+	println("\n")
 	showHitRatio(&memoryDM, memorySize, "referencia2.dat")
 }
