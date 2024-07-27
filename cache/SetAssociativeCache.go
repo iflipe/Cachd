@@ -15,13 +15,13 @@ type SetLine struct {
 }
 
 // Initializes the instance of SACache with the appropriate number of zero-valued lines
-func (cache *SACache) Init(size, wordsize int) {
+func (cache *SACache) Init(size, blocksize int) {
 	cache.size = size
-	cache.blockSize = wordsize
-	cache.sets = make([][2]SetLine, size/(2*wordsize))
+	cache.blockSize = blocksize
+	cache.sets = make([][2]SetLine, size/(2*blocksize))
 	for i := 0; i < len(cache.sets); i++ {
 		for j := 0; j < 2; j++ {
-			cache.sets[i][j] = SetLine{0, false, make([]byte, wordsize), false}
+			cache.sets[i][j] = SetLine{0, false, make([]byte, blocksize), false}
 		}
 	}
 }

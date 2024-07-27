@@ -52,7 +52,7 @@ func calculateHitRatio(memory cache.ICache, filename string) (float64, error) {
 }
 
 func showHitRatio(memory cache.ICache, size int, filename string) {
-	hitRecord := make([]float64, 5) //Array that stores the hit ratio for each blocksize
+	hitRecord := make([]float64, 5) //Array that stores the hit ratio for each block size
 	for blocksize := 1; blocksize <= 16; blocksize *= 2 {
 		memory.Init(size, blocksize) //Initializes the cache with the appropriate size and block size for each iteration
 		if hitRatio, err := calculateHitRatio(memory, filename); err != nil {
@@ -84,7 +84,7 @@ func main() {
 	memorySA := cache.SACache{}
 	memoryDM := cache.DMCache{}
 
-	//Tests memories for different blocksizes
+	//Tests memories for different block sizes
 	println("Memory Set Associative")
 	showHitRatio(&memorySA, memorySize, "referencia1.dat")
 	println("\n")
