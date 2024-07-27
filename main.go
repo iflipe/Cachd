@@ -52,18 +52,18 @@ func calculateHitRatio(memory cache.ICache, filename string) (float64, error) {
 }
 
 func showHitRatio(memory cache.ICache, size int, filename string) {
-	hitRecord := make([]float64, 5) //Array that stores the hit ratio for each wordsize
-	for wordsize := 1; wordsize <= 16; wordsize *= 2 {
-		memory.Init(size, wordsize) //Initializes the cache with the appropriate size and wordsize for each iteration
+	hitRecord := make([]float64, 5) //Array that stores the hit ratio for each blocksize
+	for blocksize := 1; blocksize <= 16; blocksize *= 2 {
+		memory.Init(size, blocksize) //Initializes the cache with the appropriate size and block size for each iteration
 		if hitRatio, err := calculateHitRatio(memory, filename); err != nil {
 			fmt.Println(err)
 		} else {
-			hitRecord[int(math.Log2(float64(wordsize)))] = hitRatio //Saves the hit ratio for the current wordsize
+			hitRecord[int(math.Log2(float64(blocksize)))] = hitRatio //Saves the hit ratio for the current block size
 		}
 	}
-	//Prints the hit ratio for each wordsize with a precision of 2 decimal places
+	//Prints the hit ratio for each blocksize with a precision of 2 decimal places
 	fmt.Printf("For %v:\n", strings.Split(filename, ".")[0])
-	fmt.Printf("| Wordsize\t| Hit ratio\n")
+	fmt.Printf("| Block size\t| Hit ratio\n")
 	fmt.Printf("----------------------------\n")
 	for i := 0; i < 5; i++ {
 		fmt.Printf("| %dB\t\t| %.2f%%\n", int(math.Pow(2, float64(i))), hitRecord[i]*100)
@@ -84,7 +84,7 @@ func main() {
 	memorySA := cache.SACache{}
 	memoryDM := cache.DMCache{}
 
-	//Tests memories for different wordsizes
+	//Tests memories for different blocksizes
 	println("Memory Set Associative")
 	showHitRatio(&memorySA, memorySize, "referencia1.dat")
 	println("\n")

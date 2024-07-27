@@ -1,9 +1,9 @@
 package cache
 
 type SACache struct {
-	sets  [][2]SetLine //2-way set associative
-	size  int
-	wsize int //wordsize in bytes
+	sets      [][2]SetLine //2-way set associative
+	size      int
+	blockSize int //in bytes
 }
 
 // The struct that represents a line in the cache
@@ -14,10 +14,10 @@ type SetLine struct {
 	used  bool //used for LRU replacement policy adopted for this experiment
 }
 
-// Initializes the instance of DMCache with the appropriate number of zero-valued lines
+// Initializes the instance of SACache with the appropriate number of zero-valued lines
 func (cache *SACache) Init(size, wordsize int) {
 	cache.size = size
-	cache.wsize = wordsize
+	cache.blockSize = wordsize
 	cache.sets = make([][2]SetLine, size/(2*wordsize))
 	for i := 0; i < len(cache.sets); i++ {
 		for j := 0; j < 2; j++ {
@@ -35,9 +35,9 @@ func (cache *SACache) Size() int {
 // In this current implementation the 'word' part of the key is not given any treatment since it doesn't
 // affect the results. Nonetheless, for consistency, nil value is assigned to the word array every time necessity arises.
 func (cache *SACache) Lookup(key uint16) bool {
-	//word := key % uint16(c.wsize) //unused variable
-	keySet := (key / uint16(cache.wsize)) % uint16(len(cache.sets)) //Set is the middle "(len(cache.sets))" bits
-	keyTag := key / uint16(cache.wsize) / uint16(len(cache.sets))   //Tag is the remaining bits
+	//word := key % uint16(c.blockSize) //unused variable
+	keySet := (key / uint16(cache.blockSize)) % uint16(len(cache.sets)) //Set is the middle "(len(cache.sets))" bits
+	keyTag := key / uint16(cache.blockSize) / uint16(len(cache.sets))   //Tag is the remaining bits
 	for i := 0; i < 2; i++ {
 		//Tests if there is a hit in any of the two ways of the line
 		if cache.sets[keySet][i].valid && cache.sets[keySet][i].tag == keyTag {

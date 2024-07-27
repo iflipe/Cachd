@@ -5,9 +5,9 @@ package cache
 */
 
 type DMCache struct {
-	lines    []line
-	size     int //in bytes
-	wordSize int //in bytes
+	lines     []line
+	size      int //in bytes
+	blockSize int //in bytes
 }
 
 type line struct {
@@ -17,13 +17,13 @@ type line struct {
 }
 
 //Initializes the instance of DMCache with the appropriate number of zero-valued lines
-func (c *DMCache) Init(size int, ws int) {
+func (c *DMCache) Init(size int, bs int) {
 	c.size = size
-	c.wordSize = ws
+	c.blockSize = bs
 	//Creates an array of the apropriate size to respect the overall size parameter
-	c.lines = make([]line, size/ws)
+	c.lines = make([]line, size/bs)
 	for i := 0; i < len(c.lines); i++ {
-		c.lines[i] = line{0, false, make([]byte, ws)}
+		c.lines[i] = line{0, false, make([]byte, bs)}
 	}
 }
 
@@ -41,10 +41,10 @@ func (cache *DMCache) Lookup(key uint16) bool {
 		The key is split into three parts, the tag, the block and the word
 		  tag       block     word
 		[______|_____________|____]
-		The size of each part is determined by the size of the cache and the wordsize
+		The size of each part is determined by the size of the cache and the block size
 	*/
-	//word := key & (uint16(c.wordSize)-1) //unused variable
-	keyBlock := (key & (uint16(cache.size - 1))) / uint16(cache.wordSize)
+	//word := key & (uint16(c.blockSize)-1) //unused variable
+	keyBlock := (key & (uint16(cache.size - 1))) / uint16(cache.blockSize)
 	keyTag := key / uint16(cache.size)
 	tag, valid := cache.lines[keyBlock].tag, cache.lines[keyBlock].valid
 	if valid && tag == keyTag {
